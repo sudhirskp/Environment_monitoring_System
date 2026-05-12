@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Environment Monitoring Dashboard</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="dashboard.css">
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Firebase Configuration & Initialization (Inline Module Script) -->
+    <!-- IMPORTANT: Firebase credentials are loaded from firebase-config.js -->
+    <!-- Make sure to set up firebase-config.js with your credentials before using! -->
+    <script type="module">
+        import { firebaseConfig } from './firebase-config.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, onValue, set, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        // Validate that credentials are configured
+        if (firebaseConfig.apiKey === "YOUR_API_KEY_HERE") {
+            console.error("❌ Firebase not configured! Please set up firebase-config.js");
+            document.body.innerHTML = `
+                <div style="padding: 40px; background: #fee2e2; color: #991b1b; border-radius: 8px; margin: 20px; font-family: sans-serif;">
+                    <h2>⚠️ Firebase Configuration Required</h2>
+                    <p>Firebase credentials are not configured. Please follow these steps:</p>
+                    <ol>
+                        <li>Copy <code>web/firebase-config.example.js</code> to <code>web/firebase-config.js</code></li>
+                        <li>Add your Firebase credentials from <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></li>
+                        <li>Refresh this page</li>
+                    </ol>
+                </div>
+            `;
+            throw new Error("Firebase not configured");
+        }
+        
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebaseOnValue = onValue;
+        window.firebaseSet = set;
+        window.firebaseGet = get;
+        
+        console.log("✓ Firebase initialized");
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🌍 ESP32 Environment Monitoring System</h1>
+            <p class="subtitle">Real-time Air Quality & Environmental Data Dashboard</p>
+            <div class="status loading" id="connectionStatus">
+                ⏳ Connecting to Firebase...
+            </div>
+        </div>
+        
+        <!-- Current Values Cards -->
+        <div class="main-grid">
+            <!-- Temperature Card -->
+            <div class="card temperature">
+                <div class="card-header">
+                    <span class="card-title">Temperature</span>
+                    <span class="card-icon">🌡️</span>
+                </div>
+                <div class="card-value" id="tempValue">--</div>
+                <div class="card-unit">°C</div>
+                <div class="card-status status-normal" id="tempStatus">Loading...</div>
+            </div>
+            
+            <!-- Humidity Card -->
+            <div class="card humidity">
+                <div class="card-header">
+                    <span class="card-title">Humidity</span>
+                    <span class="card-icon">💧</span>
+                </div>
+                <div class="card-value" id="humidValue">--</div>
+                <div class="card-unit">%</div>
+                <div class="card-status status-normal" id="humidStatus">Loading...</div>
+            </div>
+            
+            <!-- AQI Card -->
+            <div class="card aqi">
+                <div class="card-header">
+                    <span class="card-title">Air Quality Index</span>
+                    <span class="card-icon">🌫️</span>
+                </div>
+                <div class="card-value" id="aqiValue">--</div>
+                <div class="card-unit">AQI</div>
+                <div class="card-status status-good" id="aqiStatus">Loading...</div>
+            </div>
+            
+            <!-- Gas Card -->
+            <div class="card gas">
+                <div class="card-header">
+                    <span class="card-title">Gas Sensor (MQ-9)</span>
+                    <span class="card-icon">☁️</span>
+                </div>
+                <div class="card-value" id="gasValue">--</div>
+                <div class="card-unit">ppm</div>
+                <div class="card-status status-normal" id="gasStatus">Loading...</div>
+            </div>
+        </div>
+        
+        <!-- Threshold Control Panel -->
+        <div class="threshold-section">
+            <h2 class="threshold-title">⚙️ Threshold Control Panel</h2>
+            <div class="threshold-controls">
+                <!-- AQI Threshold -->
+                <div class="threshold-item">
+                    <label class="threshold-label">AQI Alert Threshold</label>
+                    <div class="threshold-input-group">
+                        <input type="number" id="aqiThresholdInput" class="threshold-input" 
+                               value="300" min="0" max="500" step="10">
+                        <button class="threshold-button" onclick="updateAQIThreshold()">
+                            Update
+                        </button>
+                    </div>
+                    <div class="threshold-current">
+                        Current: <strong id="aqiThresholdCurrent">Loading...</strong>
+                    </div>
+                </div>
+                
+                <!-- Gas Threshold -->
+                <div class="threshold-item">
+                    <label class="threshold-label">Gas Alert Threshold (ppm)</label>
+                    <div class="threshold-input-group">
+                        <input type="number" id="gasThresholdInput" class="threshold-input" 
+                               value="2500" min="0" max="10000" step="100">
+                        <button class="threshold-button" onclick="updateGasThreshold()">
+                            Update
+                        </button>
+                    </div>
+                    <div class="threshold-current">
+                        Current: <strong id="gasThresholdCurrent">Loading...</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Telegram Alert Configuration Panel (STEP 5) -->
+        <div class="telegram-section">
+            <h2 class="telegram-title">📱 Telegram Alert Configuration</h2>
+            <div class="telegram-status" id="telegramStatus">
+                🔴 Not configured
+            </div>
+            <div class="telegram-controls">
+                <!-- Bot Token -->
+                <div class="telegram-item">
+                    <label class="telegram-label">Bot Token</label>
+                    <div class="telegram-input-group">
+                        <input type="password" id="botTokenInput" class="telegram-input" 
+                               placeholder="Enter Telegram Bot Token">
+                        <button class="telegram-button" onclick="updateBotToken()">
+                            Save
+                        </button>
+                    </div>
+                    <div class="telegram-hint">
+                        Get from <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer">@BotFather</a>
+                    </div>
+                </div>
+                
+                <!-- Chat ID -->
+                <div class="telegram-item">
+                    <label class="telegram-label">Chat ID</label>
+                    <div class="telegram-input-group">
+                        <input type="text" id="chatIdInput" class="telegram-input" 
+                               placeholder="Enter your Telegram Chat ID">
+                        <button class="telegram-button" onclick="updateChatId()">
+                            Save
+                        </button>
+                        <button class="telegram-button" onclick="fetchChatIdFromUpdates()">
+                            Detect Chat ID
+                        </button>
+                    </div>
+                    <div class="telegram-hint">
+                        Use your personal Telegram account or group (not another bot). You can detect chat ID automatically or get it from <a href="https://api.telegram.org/bot{bot_token}/getUpdates" target="_blank" rel="noopener noreferrer">Bot API</a>
+                    </div>
+                </div>
+                
+                <!-- Test Button -->
+                <div class="telegram-item">
+                    <button class="telegram-button-primary" onclick="sendTestTelegramMessage()">
+                        📨 Send Test Message
+                    </button>
+                </div>
+                
+                <!-- Alert Settings -->
+                <div class="telegram-item">
+                    <label class="telegram-label">Alert Settings</label>
+                    <div class="telegram-settings">
+                        <label class="telegram-checkbox">
+                            <input type="checkbox" id="aqiAlertEnable" checked>
+                            Enable AQI Alerts
+                        </label>
+                        <label class="telegram-checkbox">
+                            <input type="checkbox" id="gasAlertEnable" checked>
+                            Enable Gas Alerts
+                        </label>
+                    </div>
+                    <div class="telegram-hint">
+                        ⏱️ <strong>Cooling Period:</strong> 10 minutes between alerts for the same type
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alert History -->
+            <div class="alert-history-section">
+                <h3 class="alert-history-title">📋 Recent Alerts</h3>
+                <div class="alert-history-list" id="alertHistoryList">
+                    <p class="loading">Loading alert history...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="charts-grid">
+                <!-- Temperature Chart -->
+                <div class="chart-container">
+                    <div class="chart-title">🌡️ Temperature History</div>
+                    <canvas id="tempChart"></canvas>
+                </div>
+                
+                <!-- Humidity Chart -->
+                <div class="chart-container">
+                    <div class="chart-title">💧 Humidity History</div>
+                    <canvas id="humidChart"></canvas>
+                </div>
+                
+                <!-- AQI Chart -->
+                <div class="chart-container">
+                    <div class="chart-title">🌫️ Air Quality Index History</div>
+                    <canvas id="aqiChart"></canvas>
+                </div>
+                
+                <!-- Gas Chart -->
+                <div class="chart-container">
+                    <div class="chart-title">☁️ Gas Concentration History</div>
+                    <canvas id="gasChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>ESP32 Environment Monitoring System | Research Project 2026</p>
+            <div class="last-update">
+                Last Update: <strong id="lastUpdateTime">Never</strong>
+            </div>
+            <div class="last-update">
+                Latest Reading: <strong id="latestReadingTime">--</strong>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Dashboard JavaScript -->
+    <script src="dashboard.js"></script>
+</body>
+</html>

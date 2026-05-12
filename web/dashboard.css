@@ -1,0 +1,553 @@
+/* ==================== GLOBAL STYLES ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ==================== HEADER STYLES ==================== */
+.header {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.header h1 {
+    color: #667eea;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.header .subtitle {
+    color: #666;
+    font-size: 16px;
+}
+
+.header .status {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.status.connected {
+    background: #10b981;
+    color: white;
+}
+
+.status.disconnected {
+    background: #ef4444;
+    color: white;
+}
+
+.status.loading {
+    background: #f59e0b;
+    color: white;
+}
+
+/* ==================== CARD GRID ==================== */
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.card-title {
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.card-icon {
+    font-size: 28px;
+}
+
+.card-value {
+    font-size: 42px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.card-unit {
+    font-size: 18px;
+    color: #999;
+}
+
+.card-status {
+    margin-top: 10px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+/* ==================== STATUS COLORS ==================== */
+.status-good {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-moderate {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-unhealthy {
+    background: #fed7aa;
+    color: #9a3412;
+}
+
+.status-hazardous {
+    background: #fecaca;
+    color: #991b1b;
+}
+
+.status-alert {
+    background: #fecaca;
+    color: #991b1b;
+}
+
+.status-warning {
+    background: #fed7aa;
+    color: #9a3412;
+}
+
+.status-normal {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+/* ==================== SENSOR COLOR CODING ==================== */
+.card.temperature .card-value { color: #ef4444; }
+.card.humidity .card-value { color: #3b82f6; }
+.card.aqi .card-value { color: #8b5cf6; }
+.card.gas .card-value { color: #f59e0b; }
+
+/* ==================== CHARTS SECTION ==================== */
+.charts-section {
+    margin-bottom: 30px;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 20px;
+}
+
+.chart-container {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.chart-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* ==================== THRESHOLD CONTROLS ==================== */
+.threshold-section {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.threshold-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.threshold-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.threshold-item {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+}
+
+.threshold-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.threshold-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.threshold-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.threshold-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.threshold-button {
+    padding: 12px 25px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.threshold-button:hover {
+    background: #5568d3;
+}
+
+.threshold-button:active {
+    transform: scale(0.95);
+}
+
+.threshold-current {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+/* ==================== TELEGRAM SECTION (STEP 5) ==================== */
+.telegram-section {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    border-left: 5px solid #0088cc;
+}
+
+.telegram-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.telegram-status {
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.telegram-status.connected {
+    background: #d1fae5;
+    color: #065f46;
+    border: 2px solid #6ee7b7;
+}
+
+.telegram-status.disconnected {
+    background: #fee2e2;
+    color: #7f1d1d;
+    border: 2px solid #fca5a5;
+}
+
+.telegram-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.telegram-item {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+}
+
+.telegram-item:hover {
+    border-color: #0088cc;
+    background: #f0f9ff;
+}
+
+.telegram-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.telegram-input-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.telegram-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.telegram-input:focus {
+    outline: none;
+    border-color: #0088cc;
+}
+
+.telegram-button {
+    padding: 12px 25px;
+    background: #0088cc;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.telegram-button:hover {
+    background: #0077b5;
+}
+
+.telegram-button:active {
+    transform: scale(0.95);
+}
+
+.telegram-button-primary {
+    padding: 15px 30px;
+    background: #0088cc;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s;
+    margin-top: 10px;
+}
+
+.telegram-button-primary:hover {
+    background: #0077b5;
+}
+
+.telegram-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+.telegram-hint a {
+    color: #0088cc;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.telegram-hint a:hover {
+    text-decoration: underline;
+}
+
+.telegram-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.telegram-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.telegram-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #0088cc;
+}
+
+/* ==================== ALERT HISTORY SECTION ==================== */
+.alert-history-section {
+    background: #f9fafb;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    border: 2px solid #e5e7eb;
+}
+
+.alert-history-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.alert-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.alert-item {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #ef4444;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.alert-item.alert-aqi {
+    border-left-color: #f59e0b;
+}
+
+.alert-item.alert-gas {
+    border-left-color: #ef4444;
+}
+
+.alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.alert-type {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 14px;
+}
+
+.alert-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.alert-details {
+    font-size: 13px;
+    color: #666;
+}
+
+.alert-details p {
+    margin: 5px 0;
+}
+
+.no-alerts {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    font-style: italic;
+}
+
+.loading {
+    text-align: center;
+    color: #999;
+}
+
+/* ==================== FOOTER ==================== */
+.footer {
+    text-align: center;
+    color: white;
+    margin-top: 30px;
+    padding: 20px;
+}
+
+.last-update {
+    background: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 10px;
+    color: #333;
+    font-size: 14px;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header h1 {
+        font-size: 24px;
+    }
+    
+    .card-value {
+        font-size: 32px;
+    }
+}

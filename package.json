@@ -1,0 +1,30 @@
+{
+  "name": "ems-telegram-alert-service",
+  "version": "1.0.0",
+  "description": "Telegram alert service for Environment Monitoring System (Step 5)",
+  "main": "backend/telegram_alert_service.js",
+  "scripts": {
+    "start": "node backend/telegram_alert_service.js",
+    "start:express": "node -e \"const {setupExpressServer} = require('./backend/telegram_alert_service'); setupExpressServer(3000);\"",
+    "dev": "nodemon backend/telegram_alert_service.js"
+  },
+  "keywords": [
+    "telegram",
+    "alerts",
+    "iot",
+    "environment-monitoring"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.15.2",
+    "express": "^4.18.0",
+    "firebase-admin": "^10.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
