@@ -85,7 +85,7 @@ int calculateAQI(float sensorValue) {
     if (aqi > 500) aqi = 500;
   }
   
-  return aqi;
+  return aqi;  git push -u origin main
 }
 
 String getAQICategory(int aqi) {
